@@ -1,0 +1,51 @@
+/* Toàn màn hình, ảnh nền */
+.homepage {
+	width: 100vw;
+	height: 100vh;
+	background-image: url("/background-datnt-blog-english.png");
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+	display: flex;
+	justify-content: flex-end;
+	align-items: flex-start;
+	padding: 20px;
+	box-sizing: border-box;
+}
+
+/* Khối chứa 2 nút */
+.button-container {
+	display: flex;
+	gap: 12px;
+}
+
+/* Nút cơ bản */
+.btn {
+	padding: 10px 20px;
+	border: none;
+	border-radius: 8px;
+	cursor: pointer;
+	font-size: 16px;
+	font-weight: 500;
+	color: white;
+	transition: 0.3s ease;
+}
+
+/* Màu riêng cho từng nút */
+.sign-in {
+	background-color: rgba(255, 255, 255, 0.2);
+	color: #ffffff;
+	border-color: #ffffff;
+	backdrop-filter: blur(4px);
+}
+
+.sign-up {
+	background-color: #ffcc00;
+	color: #003366;
+}
+
+/* Hiệu ứng hover */
+.btn:hover {
+	opacity: 0.85;
+	transform: translateY(-2px);
+}
