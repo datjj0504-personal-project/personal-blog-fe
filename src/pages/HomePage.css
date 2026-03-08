@@ -1,3 +1,154 @@
+/* Modal styles for sign in / sign up */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.modal {
+  background: #fff;
+  color: #111;
+  padding: 18px;
+  border-radius: 8px;
+  min-width: 320px;
+  max-width: 420px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+}
+
+.modal h3 {
+  margin-top: 0;
+}
+
+.modal label {
+  display: block;
+  margin-bottom: 12px;
+}
+
+.modal label input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+.input-field {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.input-field input {
+  flex: 1;
+  width: 100%;
+}
+
+.password-row input {
+  max-width: none;
+}
+
+.password-field {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.password-field input {
+  flex: 1;
+  width: 100%;
+}
+
+.eye-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.eye-btn.invisible {
+  visibility: hidden;
+  cursor: auto;
+}
+
+.input-guidance {
+  font-size: 12px;
+  color: #666;
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+.input-guidance ul {
+  margin: 4px 0;
+  padding-left: 18px;
+}
+
+.input-guidance li {
+  margin: 2px 0;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.btn.primary {
+  background: #007bff;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.btn.cancel {
+  background: rgba(0,0,0,0.06);
+  color: #111;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.result-message {
+  white-space: pre-wrap;
+  max-height: 240px;
+  overflow: auto;
+  background: #f6f6f6;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+/* Loading spinner styles */
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-modal {
+  text-align: center;
+}
+
+.loading-modal h3 {
+  margin-bottom: 15px;
+}
+
+.loading-modal p {
+  color: #666;
+  margin-top: 10px;
+  font-size: 14px;
+}
 /* Toàn màn hình, ảnh nền */
 .homepage {
 	width: 100vw;
