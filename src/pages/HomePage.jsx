@@ -8,6 +8,8 @@ function HomePage() {
 	const [status, setStatus] = useState("idle"); // idle | connecting | connected | failed
 	const [attempts, setAttempts] = useState(0);
 	const [backendBody, setBackendBody] = useState(null);
+	const backendBase = "/datnt/blog/server";
+	const authBase = `${backendBase}/auth`;
 	// Sign in / Sign up modal state
 	const [showSignIn, setShowSignIn] = useState(false);
 	const [showSignUp, setShowSignUp] = useState(false);
@@ -25,8 +27,7 @@ function HomePage() {
 
 	useEffect(() => {
 		let mounted = true;
-		// Use a relative path so Vite dev server can proxy and log the attempts in the terminal
-		const backendPath = "/fe_access";
+		const backendPath = `${backendBase}/system/health`;
 
 		setStatus("connecting");
 
@@ -34,7 +35,15 @@ function HomePage() {
 			timeoutMs: 180_000, // 3 minutes
 			intervalMs: 3_000,
 			perRequestTimeoutMs: 5_000,
-			expectedBody: "Frontend access detected",
+			validateResponse: (res, bodyText) => {
+				if (res.status !== 200) return false;
+				try {
+					const body = bodyText ? JSON.parse(bodyText) : null;
+					return body && body.status === "OK";
+				} catch (err) {
+					return false;
+				}
+			},
 			onAttempt: (n) => {
 				if (!mounted) return;
 				setAttempts(n);
@@ -73,7 +82,7 @@ function HomePage() {
 	async function handleSignInSubmit(e) {
 		e && e.preventDefault();
 		try {
-			const res = await fetch('http://localhost:8081/login', {
+			const res = await fetch(`${authBase}/login`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ username: signInUsername, password: signInPassword }),
@@ -116,7 +125,7 @@ function HomePage() {
 		}
 
 		try {
-			const res = await fetch('http://localhost:8081/register', {
+			const res = await fetch(`${authBase}/register`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ username: signUpUsername, password: signUpPassword }),
@@ -131,14 +140,34 @@ function HomePage() {
 			}
 
 			if (res.status === 201 && responseData && responseData.success) {
-				// On successful sign up, auto-login and redirect to home
+				// On successful sign up, perform login via backend to ensure BE issues valid auth session/token
 				setShowSignUp(false);
-				const token = responseData.data.token;
-				const expiresIn = responseData.data.expiresIn;
-				login({ username: signUpUsername }, token, expiresIn);
-				setTimeout(() => {
-					window.location.href = '/home';
-				}, 100);
+				const loginRes = await fetch(`${authBase}/login`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ username: signUpUsername, password: signUpPassword }),
+				});
+
+				let loginData = null;
+				try {
+					const loginText = await loginRes.text();
+					loginData = loginText ? JSON.parse(loginText) : null;
+				} catch (err) {
+					loginData = null;
+				}
+
+				if (loginRes.status === 200 && loginData && loginData.success) {
+					const token = loginData.data.token;
+					const expiresIn = loginData.data.expiresIn;
+					login({ username: signUpUsername }, token, expiresIn);
+					setTimeout(() => {
+						window.location.href = '/home';
+					}, 100);
+					return;
+				}
+
+				const loginError = loginData?.message || `Login after register failed (status ${loginRes.status})`;
+				openResult('Sign Up Login Failed', loginError);
 			} else {
 				const errorMsg = responseData?.message || `Status ${res.status}`;
 				openResult('Sign Up Failed', errorMsg);

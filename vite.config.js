@@ -5,17 +5,15 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
 	plugins: [
 		react(),
-		// plugin to log proxy requests to /fe_access in the terminal
+		// plugin to log proxy requests to /datnt/blog/server in the terminal
 		(() => ({
-			name: 'log-fe-access-requests',
+			name: 'log-backend-requests',
 			configureServer(server) {
 				server.middlewares.use((req, res, next) => {
 					try {
-						if (req && req.url && req.url.startsWith('/fe_access')) {
+						if (req && req.url && req.url.startsWith('/datnt/blog/server')) {
 							const remote = req.socket && req.socket.remoteAddress ? req.socket.remoteAddress : 'unknown';
-							// prints in the terminal where `npm run dev` is running
-							// note: keep logs lightweight to avoid noisy output
-							console.log(`[vite:fe-access] ${req.method} ${req.url} from ${remote}`);
+							console.log(`[vite:backend] ${req.method} ${req.url} from ${remote}`);
 						}
 					} catch (e) {
 						// ignore logging errors
@@ -29,10 +27,11 @@ export default defineConfig({
 		port: 8082, // 👈 chính là chỗ config cổng
 		proxy: {
 			// forward requests from the dev server to the backend to avoid CORS
-			'/fe_access': {
+			'/datnt/blog/server': {
 				target: 'http://localhost:8081',
 				changeOrigin: true,
-				rewrite: (path) => path.replace(/^\/fe_access/, '/fe_access'),
+				// keep path intact so backend receives /datnt/blog/server/... requests
+				rewrite: (path) => path,
 			},
 		},
 	},

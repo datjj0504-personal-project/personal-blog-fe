@@ -1,14 +1,45 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { authenticatedFetch } from '../utils/authenticatedFetch';
 import './BlogHome.css';
 
 export default function BlogHome() {
+  const backendBase = '/datnt/blog/server';
+  const authBase = `${backendBase}/auth`;
   const { user, logout } = useAuth();
   const [showMenu, setShowMenu] = useState(false);
 
-  const handleLogout = () => {
-    logout();
-    window.location.href = '/';
+  const handleLogout = async () => {
+    const token = localStorage.getItem('authToken');
+    const requestBody = { username: user?.username || '', token: token || '' };
+    console.log('[BlogHome] logout request body:', requestBody);
+    try {
+      const res = await authenticatedFetch(`${authBase}/logout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody),
+      });
+      let responseBody = null;
+      try {
+        const text = await res.clone().text();
+        responseBody = text ? JSON.parse(text) : text;
+      } catch (err) {
+        responseBody = null;
+      }
+      console.log('[BlogHome] logout response:', {
+        status: res.status,
+        ok: res.ok,
+        body: responseBody,
+      });
+      if (!res.ok) {
+        console.warn(`[BlogHome] logout endpoint returned ${res.status}`);
+      }
+    } catch (err) {
+      console.warn(`[BlogHome] logout request failed: ${err && err.message}`);
+    } finally {
+      logout();
+      window.location.href = '/';
+    }
   };
 
   const handleNavigate = (route) => {

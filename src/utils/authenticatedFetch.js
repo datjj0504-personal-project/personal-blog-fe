@@ -16,9 +16,41 @@ export async function authenticatedFetch(url, options = {}) {
 	if (token) {
 		headers['Authorization'] = `Bearer ${token}`;
 	}
+
+	// Log request details for debugging
+	let requestBody = options.body;
+	try {
+		if (typeof requestBody === 'string') {
+			requestBody = JSON.parse(requestBody);
+		}
+	} catch (err) {
+		// keep original body if not JSON
+	}
+	console.log('[authenticatedFetch] request:', {
+		url,
+		method: options.method || 'GET',
+		body: requestBody,
+	});
 	
-	return fetch(url, {
+	const res = await fetch(url, {
 		...options,
 		headers,
 	});
+
+	// Log response details for debugging
+	let responseBody = null;
+	try {
+		const text = await res.clone().text();
+		responseBody = text ? JSON.parse(text) : text;
+	} catch (err) {
+		responseBody = null;
+	}
+	console.log('[authenticatedFetch] response:', {
+		url,
+		status: res.status,
+		ok: res.ok,
+		body: responseBody,
+	});
+
+	return res;
 }

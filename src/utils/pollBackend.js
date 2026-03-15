@@ -9,6 +9,8 @@ export async function waitForServer(url, options = {}) {
     onAttempt,
     // If provided, the response body (string) must exactly match this to consider success
     expectedBody = null,
+    // Optional validator for response success, receives (res, bodyText) and returns true/false
+    validateResponse = null,
   } = options;
 
   const start = Date.now();
@@ -32,28 +34,49 @@ export async function waitForServer(url, options = {}) {
       const res = await fetch(url, { method: 'GET', signal: controller.signal, cache: 'no-store' });
       clearTimeout(timeoutId);
 
-      if (res && res.ok) {
-        // read body as text for optional matching / debugging
+      if (res) {
+        // read body as text for optional matching / debugging (even on non-ok)
         let bodyText = null;
         try {
           bodyText = await res.text();
         } catch (err) {
           console.debug(`[pollBackend] failed to read body on attempt #${attempts}: ${err && err.message}`);
         }
+        console.log('[pollBackend] response:', {
+          status: res.status,
+          ok: res.ok,
+          body: bodyText,
+        });
 
-        if (expectedBody == null) {
+        if (res.ok && typeof validateResponse === 'function') {
+          let valid = false;
+          try {
+            valid = await validateResponse(res, bodyText);
+          } catch (err) {
+            console.debug(`[pollBackend] validateResponse threw on attempt #${attempts}: ${err && err.message}`);
+          }
+          if (valid) {
+            console.info(`[pollBackend] success on attempt #${attempts} via validateResponse`);
+            return { res, attempts, body: bodyText };
+          }
+          console.debug(`[pollBackend] validateResponse failed on attempt #${attempts}`);
+        }
+
+        if (res.ok && expectedBody == null && typeof validateResponse !== 'function') {
           console.info(`[pollBackend] success on attempt #${attempts} (status ${res.status})`);
           return { res, attempts, body: bodyText };
         }
 
-        // Compare trimmed strings to be a bit more forgiving about trailing newlines/spaces
-        const got = (bodyText || '').trim();
-        const want = String(expectedBody).trim();
-        if (got === want) {
-          console.info(`[pollBackend] expected body matched on attempt #${attempts}`);
-          return { res, attempts, body: bodyText };
-        } else {
-          console.debug(`[pollBackend] body mismatch on attempt #${attempts} (got: "${got}", want: "${want}")`);
+        if (res.ok && expectedBody != null) {
+          // Compare trimmed strings to be a bit more forgiving about trailing newlines/spaces
+          const got = (bodyText || '').trim();
+          const want = String(expectedBody).trim();
+          if (got === want) {
+            console.info(`[pollBackend] expected body matched on attempt #${attempts}`);
+            return { res, attempts, body: bodyText };
+          } else {
+            console.debug(`[pollBackend] body mismatch on attempt #${attempts} (got: "${got}", want: "${want}")`);
+          }
         }
       } else {
         console.debug(`[pollBackend] non-ok response on attempt #${attempts} (status ${res && res.status})`);
