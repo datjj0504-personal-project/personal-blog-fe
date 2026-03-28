@@ -53,52 +53,68 @@ export default function BlogHome() {
 
   return (
     <div className="blog-home">
-      {/* Profile Button with Dropdown */}
-      <div className="profile-menu-container">
+      {/* Header */}
+      <header className="blog-header">
         <button
-          className="profile-button"
-          onClick={() => setShowMenu(!showMenu)}
-          title={user?.username || 'Profile'}
+          type="button"
+          className="brand-logo"
+          title="DatNT Blog"
+          onClick={() => handleNavigate('home')}
         >
-          {user?.username ? user.username.charAt(0).toUpperCase() : 'U'}
+          DatNT Blog
         </button>
+        <div className="header-actions">
+          <button type="button" className="header-btn">Feeds</button>
+          <button type="button" className="header-btn primary">Create Post</button>
+        </div>
 
-        {showMenu && (
-          <div className="profile-dropdown">
-            <a
-              href="#profile"
-              onClick={(e) => {
-                e.preventDefault();
-                handleNavigate('profile');
-              }}
-              className="dropdown-item"
-            >
-              Profile
-            </a>
-            <a
-              href="#personal"
-              onClick={(e) => {
-                e.preventDefault();
-                handleNavigate('personal');
-              }}
-              className="dropdown-item"
-            >
-              Home
-            </a>
-            <hr className="dropdown-divider" />
-            <a
-              href="#logout"
-              onClick={(e) => {
-                e.preventDefault();
-                handleNavigate('logout');
-              }}
-              className="dropdown-item logout-item"
-            >
-              Logout
-            </a>
-          </div>
-        )}
-      </div>
+        {/* Profile Button with Dropdown */}
+        <div className="profile-menu-container">
+          <button
+            className="profile-button"
+            onClick={() => setShowMenu(!showMenu)}
+            title={user?.username || 'Profile'}
+          >
+            {user?.username ? user.username.charAt(0).toUpperCase() : 'U'}
+          </button>
+
+          {showMenu && (
+            <div className="profile-dropdown">
+              <a
+                href="#profile"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleNavigate('profile');
+                }}
+                className="dropdown-item"
+              >
+                Profile
+              </a>
+              <a
+                href="#personal"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleNavigate('personal');
+                }}
+                className="dropdown-item"
+              >
+                Home
+              </a>
+              <hr className="dropdown-divider" />
+              <a
+                href="#logout"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleNavigate('logout');
+                }}
+                className="dropdown-item logout-item"
+              >
+                Logout
+              </a>
+            </div>
+          )}
+        </div>
+      </header>
 
       {/* Main Content Area */}
       <div className="blog-content">
