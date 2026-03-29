@@ -7,7 +7,7 @@ import BlogHome from "./pages/BlogHome";
 function AppContent() {
 	const path = typeof window !== 'undefined' ? window.location.pathname : '/';
 	
-	if (path === '/home') {
+	if (path === '/home' || path.startsWith('/home/')) {
 		return (
 			<ProtectedRoute>
 				<BlogHome />
