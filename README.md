@@ -133,7 +133,7 @@ This is a **frontend-only** repository. The corresponding backend must be runnin
 | `POST /comment` | Submit a comment |
 | `GET /system/health` | Health check |
 
-Backend repository: [datjj0504-personal-project](https://github.com/orgs/datjj0504-personal-project/repositories)
+Backend repository: [datjj0504-personal-blog](https://github.com/datjj0504-personal-project/personal-blog)
 
 ---
 
