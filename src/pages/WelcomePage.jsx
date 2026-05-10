@@ -9,7 +9,7 @@ export default function WelcomePage() {
   const { user, logout } = useAuth();
 
   const handleLogout = async () => {
-    const token = localStorage.getItem('authToken');
+    const token = sessionStorage.getItem('authToken');
     try {
       const res = await authenticatedFetch(`${authBase}/logout`, {
         method: 'POST',

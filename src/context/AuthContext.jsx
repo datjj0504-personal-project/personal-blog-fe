@@ -1,6 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext();
+const AUTH_KEYS = ['authToken', 'user', 'tokenExpiry'];
+
+function clearLegacyLocalAuth() {
+  AUTH_KEYS.forEach((key) => localStorage.removeItem(key));
+}
+
+function clearSessionAuth() {
+  AUTH_KEYS.forEach((key) => sessionStorage.removeItem(key));
+}
 
 export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -9,9 +18,9 @@ export function AuthProvider({ children }) {
 
   // Check if user is authenticated on app load
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    const userData = localStorage.getItem('user');
-    const tokenExpiry = localStorage.getItem('tokenExpiry');
+    const token = sessionStorage.getItem('authToken');
+    const userData = sessionStorage.getItem('user');
+    const tokenExpiry = sessionStorage.getItem('tokenExpiry');
     
     if (token && userData && tokenExpiry) {
       try {
@@ -21,44 +30,41 @@ export function AuthProvider({ children }) {
         // Check if token has expired
         if (now > expiryTime) {
           console.log('Token has expired');
-          localStorage.removeItem('authToken');
-          localStorage.removeItem('user');
-          localStorage.removeItem('tokenExpiry');
+          clearSessionAuth();
         } else {
           setUser(JSON.parse(userData));
           setIsAuthenticated(true);
         }
       } catch (e) {
         console.error('Failed to parse stored user data:', e);
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('user');
-        localStorage.removeItem('tokenExpiry');
+        clearSessionAuth();
       }
     }
+    clearLegacyLocalAuth();
     setIsLoading(false);
   }, []);
 
   const login = (userData, token, expiresIn) => {
-    localStorage.setItem('authToken', token);
-    localStorage.setItem('user', JSON.stringify(userData));
+    clearLegacyLocalAuth();
+    sessionStorage.setItem('authToken', token);
+    sessionStorage.setItem('user', JSON.stringify(userData));
     
     // Calculate expiry time (expiresIn is in hours)
     const expiryTime = Date.now() + (expiresIn * 60 * 60 * 1000);
-    localStorage.setItem('tokenExpiry', expiryTime.toString());
+    sessionStorage.setItem('tokenExpiry', expiryTime.toString());
     
     setUser(userData);
     setIsAuthenticated(true);
   };
 
   const logout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('user');
-    localStorage.removeItem('tokenExpiry');
+    clearSessionAuth();
+    clearLegacyLocalAuth();
     setUser(null);
     setIsAuthenticated(false);
   };
 
-  const getToken = () => localStorage.getItem('authToken');
+  const getToken = () => sessionStorage.getItem('authToken');
 
   return (
     <AuthContext.Provider value={{

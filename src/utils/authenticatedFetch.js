@@ -5,7 +5,7 @@
  * @returns {Promise<Response>} Fetch response
  */
 export async function authenticatedFetch(url, options = {}) {
-	const token = localStorage.getItem('authToken');
+	const token = sessionStorage.getItem('authToken');
 	
 	const headers = {
 		'Content-Type': 'application/json',
